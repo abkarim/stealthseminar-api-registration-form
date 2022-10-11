@@ -1,24 +1,17 @@
 // Webinar id
 const webinarShortId = ''; // Replace with you webinar short id
-
 // Get timezone
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 // initial country
-const initialCountry = 'us';
+const initialCountry = 'us'; // For phone number
 // Get elements
 const nameField = document.getElementById('name');
 const emailField = document.getElementById('email');
 const timeField = document.getElementById('time')
-const emCheckbox = [...document.querySelectorAll('input[name="eu-member"]')];
-const gdprMainContainer = document.querySelector('.gdpr-main-container');
-const gdprContainer = document.getElementById('gdpr-container');
-const gdprCheckbox = document.getElementById('gdpr-agree');
 const smsCheckbox = document.getElementById('sms-alert');
 const numberInputContainer = document.getElementById('number-input-container')
 const numberField = document.querySelector('input[type=tel]');
-const countryField = document.getElementById('country');
 const form = document.querySelector('form');
-const countrySelector = document.getElementById('country');
 const submitButton = document.querySelector('.submit-button');
 
 const urlParameter = new URL(window.location.href);
@@ -43,33 +36,6 @@ var iti = intlTelInput(numberField, {
         "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
 })
 
-
-//* Configure country names
-const country = window.intlTelInputGlobals.getCountryData();
-country.forEach(country => {
-    // Prepare option element and append to country list selector
-    const element = document.createElement('option');
-    element.value = country.iso2;
-    element.textContent = country.name;
-    countrySelector.appendChild(element);
-})
-
-// Initial country
-countrySelector.value = initialCountry
-
-// Handle member of eu 
-emCheckbox.forEach(item => item.addEventListener('change', () => {
-    // Is eu member
-    const memberOfEU = document.querySelector('input[name="eu-member"]:checked').value === 'yes';
-    if (memberOfEU) {
-        gdprContainer.hidden = false
-        gdprCheckbox.required = true;
-    } else {
-        gdprContainer.hidden = true
-        gdprCheckbox.required = false;
-    }
-}))
-
 // Handle sms alert
 smsCheckbox.addEventListener('click', () => {
     // Is checked
@@ -83,7 +49,8 @@ smsCheckbox.addEventListener('click', () => {
 })
 
 // Get webinar registration data
-axios.get(`https://api.joinnow.live/webinars/${webinarShortId}/registration-information?timezone=${timeZone}`)
+axios
+    .get(`https://api.joinnow.live/webinars/${webinarShortId}/registration-information?timezone=${timeZone}`)
     .then(response => {
         // Destruct data
         const { data } = response;
@@ -111,18 +78,11 @@ axios.get(`https://api.joinnow.live/webinars/${webinarShortId}/registration-info
             timeField.appendChild(element)
         })
 
-        // Handle gdpr
-        if (data.gdpr === null) {
-            gdprMainContainer.hidden = true;
-            emCheckbox.forEach(item => item.required = false)
-        }
-
-
     })
-    .catch(() => {
+    .catch((e) => {
+        // console.log(e); //Debug
         showMessage('Something went wrong, please try again later');
     })
-
 
 /**
  * Show message to user
@@ -130,6 +90,8 @@ axios.get(`https://api.joinnow.live/webinars/${webinarShortId}/registration-info
  * @param {Boolean} success 
  */
 function showMessage(text, success = false) {
+    const prevElement = document.querySelector('.message');
+    if (prevElement) prevElement.remove();
     const element = document.createElement('div');
     element.setAttribute('class', `message ${success === false ? 'error' : ''}`);
     element.textContent = text;
@@ -159,7 +121,6 @@ function submit(e) {
         email: emailField.value,
         sms_number: iti.getNumber(),
         timezone: timeZone,
-        gdprConsentReceived: gdprCheckbox.checked,
         linkParams: {
             v1,
             v2,
@@ -171,18 +132,16 @@ function submit(e) {
             utm_campaign,
             utm_term,
             utm_content
-        },
-        customFields: {
-            country: countryField.value
         }
     }
 
     // DIsable submit button
     submitButton.classList.add('disabled');
 
-    axios.post(`https://api.joinnow.live/webinars/${webinarShortId}/registration`, data, {
-        contentType: 'application/json'
-    })
+    axios
+        .post(`https://api.joinnow.live/webinars/${webinarShortId}/registration`, data, {
+            contentType: 'application/json'
+        })
         .then(response => {
             const { data } = response; // Destruct data
             // Show message
@@ -190,7 +149,8 @@ function submit(e) {
             // Redirect user to webinar page
             window.location = `https://joinnow.live/t/${data.webinar_short_id}?id=${data.attendee.short_id}`;
         })
-        .catch(() => {
+        .catch((e) => {
+            // console.log(e); //Debug
             showMessage("Something went wrong, please try again later");
             // Enable submit button
             submitButton.classList.remove('disabled')
