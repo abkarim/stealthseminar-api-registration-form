@@ -1,50 +1,54 @@
 // Webinar id
-const webinarShortId = ''; // Replace with you webinar short id
+const webinarShortId = '6eiWwu'; // Replace with you webinar short id
 // Get timezone
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 // initial country
 const initialCountry = 'us'; // For phone number
 // Get elements
-const nameField = document.getElementById('name');
-const emailField = document.getElementById('email');
-const timeField = document.getElementById('time')
-const smsCheckbox = document.getElementById('sms-alert');
-const numberInputContainer = document.getElementById('number-input-container')
-const numberField = document.querySelector('input[type=tel]');
-const form = document.querySelector('form');
-const submitButton = document.querySelector('.submit-button');
+const element = {
+    nameField: document.getElementById('name'),
+    emailField: document.getElementById('email'),
+    timeField: document.getElementById('time'),
+    smsCheckbox: document.getElementById('sms-alert'),
+    numberInputContainer: document.getElementById('number-input-container'),
+    numberField: document.querySelector('input[type=tel]'),
+    form: document.querySelector('form'),
+    submitButton: document.querySelector('.submit-button'),
+}
 
 const urlParameter = new URL(window.location.href);
 
 // Tracking value
-const v1 = urlParameter.searchParams.get('v1');
-const v2 = urlParameter.searchParams.get('v2');
-const v3 = urlParameter.searchParams.get('v3');
-const v4 = urlParameter.searchParams.get('v4');
-const v5 = urlParameter.searchParams.get('v5');
-const utm_source = urlParameter.searchParams.get('utm_source');
-const utm_content = urlParameter.searchParams.get('utm_content');
-const utm_term = urlParameter.searchParams.get('utm_term');
-const utm_campaign = urlParameter.searchParams.get('utm_campaign');
-const utm_medium = urlParameter.searchParams.get('utm_medium');
+const linkParams = {
+    v1: urlParameter.searchParams.get('v1'),
+    v2: urlParameter.searchParams.get('v2'),
+    v3: urlParameter.searchParams.get('v3'),
+    v4: urlParameter.searchParams.get('v4'),
+    v5: urlParameter.searchParams.get('v5'),
+    utm_source: urlParameter.searchParams.get('utm_source'),
+    utm_content: urlParameter.searchParams.get('utm_content'),
+    utm_term: urlParameter.searchParams.get('utm_term'),
+    utm_campaign: urlParameter.searchParams.get('utm_campaign'),
+    utm_medium: urlParameter.searchParams.get('utm_medium'),
+}
 
 //* Configure number input
-var iti = intlTelInput(numberField, {
+var iti = intlTelInput(element.numberField, {
     initialCountry,
-    preferredCountries: [],
+    preferredCountries: [], // Preferred countries
     utilsScript:
         "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
 })
 
 // Handle sms alert
-smsCheckbox.addEventListener('click', () => {
+element.smsCheckbox.addEventListener('click', () => {
     // Is checked
-    if (smsCheckbox.checked) {
-        numberInputContainer.hidden = false;
-        numberField.required = true;
+    if (element.smsCheckbox.checked) {
+        element.numberInputContainer.hidden = false;
+        element.numberField.required = true;
     } else {
-        numberInputContainer.hidden = true;
-        numberField.required = false;
+        element.numberInputContainer.hidden = true;
+        element.numberField.required = false;
     }
 })
 
@@ -72,10 +76,10 @@ axios
                 dateTime = moment(time).format(data.datetime_format.combined_format);
             }
             // Create element
-            const element = document.createElement('option');
-            element.value = time;
-            element.textContent = dateTime;
-            timeField.appendChild(element)
+            const ele = document.createElement('option');
+            ele.value = time;
+            ele.textContent = dateTime;
+            element.timeField.appendChild(ele)
         })
 
     })
@@ -109,34 +113,23 @@ function submit(e) {
     e.preventDefault();
 
     // Validate webinar time
-    if (!moment().isBefore(moment(timeField.value))) return showMessage("Please select a future time");
+    if (!moment().isBefore(moment(element.timeField.value))) return showMessage("Please select a future time");
 
     // Validate number
-    if (smsCheckbox.checked && !iti.isValidNumber()) return showMessage("Please input a valid number with correct format");
+    if (element.smsCheckbox.checked && !iti.isValidNumber()) return showMessage("Please input a valid number with correct format");
 
     // Prepare data
     const data = {
-        start_time: timeField.value,
-        name: nameField.value,
-        email: emailField.value,
+        start_time: element.timeField.value,
+        name: element.nameField.value,
+        email: element.emailField.value,
         sms_number: iti.getNumber(),
         timezone: timeZone,
-        linkParams: {
-            v1,
-            v2,
-            v3,
-            v4,
-            v5,
-            utm_source,
-            utm_medium,
-            utm_campaign,
-            utm_term,
-            utm_content
-        }
+        linkParams
     }
 
     // DIsable submit button
-    submitButton.classList.add('disabled');
+    element.submitButton.classList.add('disabled');
 
     axios
         .post(`https://api.joinnow.live/webinars/${webinarShortId}/registration`, data, {
@@ -147,14 +140,14 @@ function submit(e) {
             // Show message
             showMessage('Redirecting...', true)
             // Redirect user to webinar page
-            window.location = `https://joinnow.live/t/${data.webinar_short_id}?id=${data.attendee.short_id}`;
+            window.location = `https://joinnow.live/t/${data.webinar_short_id}?id=${data.attendee.short_id}`; 
         })
         .catch((e) => {
             // console.log(e); //Debug
             showMessage("Something went wrong, please try again later");
             // Enable submit button
-            submitButton.classList.remove('disabled')
+            element.submitButton.classList.remove('disabled')
         })
 }
 
-form.addEventListener('submit', submit);
+element.form.addEventListener('submit', submit);
