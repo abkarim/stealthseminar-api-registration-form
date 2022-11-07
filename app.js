@@ -1,5 +1,5 @@
 // Webinar id
-const webinarShortId = '6eiWwu'; // Replace with you webinar short id
+const webinarShortId = ''; // Replace with you webinar short id
 // Get timezone
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 // initial country
