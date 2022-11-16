@@ -10,6 +10,7 @@ const element = {
     emailField: document.getElementById('email'),
     timeField: document.getElementById('time'),
     smsCheckbox: document.getElementById('sms-alert'),
+    smsCheckboxLabel: document.querySelector('.sms-alert-checkbox-label'),
     numberInputContainer: document.getElementById('number-input-container'),
     numberField: document.querySelector('input[type=tel]'),
     form: document.querySelector('form'),
@@ -59,7 +60,14 @@ axios
         // Destruct data
         const { data } = response;
         // Update document title
-        document.title = data.title;
+        document.title = data.viewing_strings.pageTitle;
+        // Remove checkbox for number and show number field when number is required
+        if (data.registration_schema.fields[4].required) {
+            element.numberField.required = true;
+            element.smsCheckboxLabel.hidden = true;
+            element.smsCheckbox.hidden = true;
+            element.numberInputContainer.hidden = false;
+        }
         // Append upcoming time
         moment.locale(data.date_locale)
         data.upcoming_times.forEach(time => {
@@ -140,7 +148,7 @@ function submit(e) {
             // Show message
             showMessage('Redirecting...', true)
             // Redirect user to webinar page
-            window.location = `https://joinnow.live/t/${data.webinar_short_id}?id=${data.attendee.short_id}`; 
+            window.location = `https://joinnow.live/t/${data.webinar_short_id}?id=${data.attendee.short_id}`;
         })
         .catch((e) => {
             // console.log(e); //Debug

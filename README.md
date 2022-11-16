@@ -38,7 +38,7 @@ Edit app.js file and add countries in the array shown below.
 
 ## Change input text
 
-Edit form.html file to change input text all input text can be modified by the file except time options. Time options can be modified inside get request in app.js file. But that's not recommended, because you can change the format and language using event settings, so why do extra work?. But if you want to change this form only without affecting other form then edit.
+Edit **form.html** file to change input text all input text can be modified by the file except time options. **Time formatting and locale** options can be modified inside get request in app.js file. But that's not recommended, because you can change the format and language using event settings, so why do extra work?. But if you want to change this form only without affecting other forms then edit it.
 
 ## Debug
 
