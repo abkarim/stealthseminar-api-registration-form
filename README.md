@@ -2,6 +2,11 @@
 
 Simple Registration page using [StealthSeminar](https://stealthseminar.com/) API.
 
+<img width="1365" height="683" alt="image" src="https://github.com/user-attachments/assets/5850eace-385d-44d7-b981-d1d08d3e68a3" />
+<img width="1365" height="683" alt="image" src="https://github.com/user-attachments/assets/32ba30d5-eb77-4daf-a2e0-d4e017dff643" />
+
+
+
 ## Features
 
 - Dynamic time format (**with locale**)
